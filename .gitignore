@@ -1,0 +1,51 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+env/
+venv/
+*.env
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+target/
+
+# JavaScript/TypeScript
+dist/
+build/
+coverage/
+*.tsbuildinfo
+*.js.map
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Log files
+*.log
+
+# Docker
+docker-compose.override.yml
+Dockerfile.prod
+
+# Other
+*.bak
+*.swp
+*.swo
