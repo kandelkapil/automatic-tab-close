@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Closed Tab Tracker</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        width: 350px;
+        padding: 20px;
+        margin: 0;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        color: #333;
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+      }
+      h2 {
+        align-self: flex-start;
+        font-size: 18px;
+        margin-bottom: 15px;
+        color: #2c3e50;
+        padding-bottom: 5px;
+      }
+      #closedTabCount {
+        align-self: flex-start;
+        font-size: 14px;
+        margin-bottom: 15px;
+        color: #34495e;
+      }
+      #closedTabUrls,
+      #whitelistDomains,
+      #reverseCloseDomains {
+        display: none;
+        width: 95%;
+        text-decoration: none;
+        align-self: flex-start;
+        max-height: 120px;
+        overflow: auto;
+        max-height: 100px;
+        margin-bottom: 15px;
+        padding: 10px;
+        color: black;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .tab-info,
+      .whitelist-item,
+      .reverse-close-item {
+        display: flex; /* Use flex layout */
+        justify-content: space-between; /* Align text left and button right */
+        font-size: 14px;
+        margin-bottom: 8px;
+        padding: 5px;
+        border-radius: 3px;
+        transition: background-color 0.3s ease;
+        position: relative;
+      }
+      .tab-info:hover,
+      .whitelist-item:hover,
+      .reverse-close-item:hover {
+        background-color: #ecf0f1;
+      }
+      .tab-info a,
+      .whitelist-item span,
+      .reverse-close-item span {
+        text-decoration: none;
+      }
+      .tab-info a:hover,
+      .whitelist-item span:hover,
+      .reverse-close-item span:hover {
+        text-decoration: none; /* Remove underline */
+      }
+      input[type="text"] {
+        width: 95%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #bdc3c7;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      button {
+        align-self: start;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-size: 14px;
+      }
+      button:hover {
+        background-color: #2980b9;
+      }
+      .top-container {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+      .clear-all-btn {
+        background-color: #e74c3c;
+      }
+      .clear-all-btn:hover {
+        background-color: #c0392b;
+      }
+      .remove-btn {
+        color: #e74c3c;
+        cursor: pointer;
+        font-weight: bold;
+        margin-left: 10px;
+        transition: color 0.3s ease;
+        display: none; /* Hidden by default */
+      }
+      .whitelist-item:hover .remove-btn,
+      .reverse-close-item:hover .remove-btn {
+        display: inline; /* Show remove button on hover */
+      }
+      .remove-btn:hover {
+        color: #c0392b; /* Hover effect for remove button */
+      }
+      #reverseCloseContainer {
+        align-self: flex-start;
+        width: 95%;
+        cursor: pointer;
+        margin-top: 20px;
+      }
+      #reverseCloseCheckbox {
+        cursor: pointer;
+        margin-right: 5px;
+        margin-bottom: 5px;
+      }
+      #clearAllBtn {
+        align-self: unset;
+      }
+
+      label {
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="top-container">
+        <h2>Closed Tabs</h2>
+        <button class="clear-all-btn" id="clearAllBtn">Clear All</button>
+      </div>
+
+      <div id="closedTabCount">Total closed tabs: 0</div>
+      <div id="closedTabUrls"></div>
+
+      <h2>Whitelist</h2>
+      <input
+        type="text"
+        id="whitelistInput"
+        placeholder="Enter domain (e.g., example.com)"
+      />
+      <button id="addWhitelistBtn">Add to Whitelist</button>
+      <div id="whitelistDomains"></div>
+
+      <div id="reverseCloseContainer">
+        <input type="checkbox" id="reverseCloseCheckbox" />
+        <label for="reverseCloseCheckbox">Close tab for selected domains</label>
+
+        <input
+          type="text"
+          id="reverseCloseInput"
+          placeholder="Enter domain for reverse close"
+        />
+        <button id="addReverseCloseBtn">Add to Reverse Close List</button>
+        <div id="reverseCloseDomains"></div>
+      </div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

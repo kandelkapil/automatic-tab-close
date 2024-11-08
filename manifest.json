@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Automatic Tab Closer",
+  "version": "1.2",
+  "description": "Detects and logs automatic new tab openings from the current tab.",
+  "permissions": ["tabs", "storage"],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}
