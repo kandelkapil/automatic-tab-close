@@ -2,185 +2,234 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Closed Tab Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Automatic Tab Closer v1</title>
     <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        border-radius: 24px;
+        overflow: hidden;
+      }
+
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        width: 350px;
-        padding: 20px;
-        margin: 0;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        color: #333;
-      }
-      .container {
         display: flex;
         flex-direction: column;
         align-items: center;
-        background-color: rgba(255, 255, 255, 0.8);
-        border-radius: 10px;
+        justify-content: center;
+        width: 320px;
         padding: 20px;
-        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
-      }
-      h2 {
-        align-self: flex-start;
-        font-size: 18px;
-        margin-bottom: 15px;
-        color: #2c3e50;
-        padding-bottom: 5px;
-      }
-      #closedTabCount {
-        align-self: flex-start;
-        font-size: 14px;
-        margin-bottom: 15px;
-        color: #34495e;
-      }
-      #closedTabUrls,
-      #whitelistDomains,
-      #reverseCloseDomains {
-        display: none;
-        width: 95%;
-        text-decoration: none;
-        align-self: flex-start;
-        max-height: 120px;
-        overflow: auto;
-        max-height: 100px;
-        margin-bottom: 15px;
-        padding: 10px;
-        color: black;
-        background-color: #fff;
-        border-radius: 5px;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-      .tab-info,
-      .whitelist-item,
-      .reverse-close-item {
-        display: flex; /* Use flex layout */
-        justify-content: space-between; /* Align text left and button right */
-        font-size: 14px;
-        margin-bottom: 8px;
-        padding: 5px;
-        border-radius: 3px;
-        transition: background-color 0.3s ease;
-        position: relative;
-      }
-      .tab-info:hover,
-      .whitelist-item:hover,
-      .reverse-close-item:hover {
-        background-color: #ecf0f1;
-      }
-      .tab-info a,
-      .whitelist-item span,
-      .reverse-close-item span {
-        text-decoration: none;
-      }
-      .tab-info a:hover,
-      .whitelist-item span:hover,
-      .reverse-close-item span:hover {
-        text-decoration: none; /* Remove underline */
-      }
-      input[type="text"] {
-        width: 95%;
-        padding: 8px;
-        margin-bottom: 10px;
-        border: 1px solid #bdc3c7;
-        border-radius: 4px;
-        font-size: 14px;
-      }
-      button {
-        align-self: start;
-        background-color: #3498db;
+        color: #333;
+        line-height: 1.6;
+        background-color: rgba(158, 158, 158, 0.3);
         color: white;
-        border: none;
+        border: 1px solid rgba(194, 194, 194, 0.5);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(8px);
         padding: 8px 12px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
+        border-radius: 20px;
         font-size: 14px;
+        transition: background-color 0.3s ease;
       }
-      button:hover {
-        background-color: #2980b9;
+
+      h2 {
+        margin-top: 0;
+        color: #2c3e50;
+        font-size: 20px;
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 0;
       }
-      .top-container {
+
+      .top-controls {
         display: flex;
-        width: 100%;
         justify-content: space-between;
+        width: 90%;
         align-items: center;
         margin-bottom: 15px;
       }
-      .clear-all-btn {
-        background-color: #e74c3c;
-      }
-      .clear-all-btn:hover {
-        background-color: #c0392b;
-      }
-      .remove-btn {
-        color: #e74c3c;
-        cursor: pointer;
-        font-weight: bold;
-        margin-left: 10px;
-        transition: color 0.3s ease;
-        display: none; /* Hidden by default */
-      }
-      .whitelist-item:hover .remove-btn,
-      .reverse-close-item:hover .remove-btn {
-        display: inline; /* Show remove button on hover */
-      }
-      .remove-btn:hover {
-        color: #c0392b; /* Hover effect for remove button */
-      }
-      #reverseCloseContainer {
-        align-self: flex-start;
-        width: 95%;
-        cursor: pointer;
-        margin-top: 20px;
-      }
-      #reverseCloseCheckbox {
-        cursor: pointer;
-        margin-right: 5px;
-        margin-bottom: 5px;
-      }
-      #clearAllBtn {
-        align-self: unset;
+
+      .toggle-container {
+        display: flex;
+        color: #2c3e50;
+        align-items: center;
+        font-size: 16px;
       }
 
-      label {
+      .toggle {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+        margin-right: 10px;
+      }
+
+      .toggle input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
         cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.4s;
+        border-radius: 34px;
+      }
+
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+
+      input:checked + .slider {
+        background-color: #2196f3;
+      }
+
+      input:checked + .slider:before {
+        transform: translateX(26px);
+      }
+
+      .domain-list,
+      #closed-domains {
+        display: none;
+        max-height: 120px;
+        cursor: pointer;
+        overflow: auto;
+        margin-top: 10px;
+        padding-right: 8px;
+        width: 90%;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      .controls {
+        width: 90%;
+      }
+
+      #closed-domains,
+      .domain-list,
+      .controls {
+        background-color: white;
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      #closed-domains {
+        margin: 15px 0px;
+        width: 90%;
+      }
+
+      .domain-item,
+      .controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        font-size: 14px;
+      }
+
+      .domain-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .domain-item span {
+        color: #2c3e50;
+        font-size: 12px;
+      }
+
+      .domain-item button {
+        background-color: transparent;
+        color: #e74c3c;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        transition: color 0.3s;
+      }
+
+      .domain-item button:hover {
+        color: #c0392b;
+      }
+
+      input[type="text"] {
+        padding: 10px;
+        border-radius: 6px;
+        font-size: 14px;
+        width: 80%;
+        border: 1px solid #ccc;
+        outline: none;
+        margin-right: 10px;
+      }
+
+      button {
+        background-color: #34495e;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #2c3e50;
+      }
+
+      #clear-data {
+        background-color: #e74c3c;
+      }
+
+      #clear-data:hover {
+        background-color: #c0392b;
+      }
+
+      #count-info {
+        color: #2c3e50;
+        font-size: 14px;
+        font-weight: bold;
+        text-align: start;
+        margin-bottom: 20px;
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <div class="top-container">
-        <h2>Closed Tabs</h2>
-        <button class="clear-all-btn" id="clearAllBtn">Clear All</button>
+    <h2>Automatic Tab Closer v1</h2>
+    <div id="count-info"></div>
+    <div class="top-controls">
+      <div class="toggle-container">
+        <label class="toggle">
+          <input type="checkbox" id="enable-extension" />
+          <span class="slider"></span>
+        </label>
+        <span id="enable-text" style="cursor: pointer">Enable</span>
       </div>
-
-      <div id="closedTabCount">Total closed tabs: 0</div>
-      <div id="closedTabUrls"></div>
-
-      <h2>Whitelist</h2>
-      <input
-        type="text"
-        id="whitelistInput"
-        placeholder="Enter domain (e.g., example.com)"
-      />
-      <button id="addWhitelistBtn">Add to Whitelist</button>
-      <div id="whitelistDomains"></div>
-
-      <div id="reverseCloseContainer">
-        <input type="checkbox" id="reverseCloseCheckbox" />
-        <label for="reverseCloseCheckbox">Close tab for selected domains</label>
-
-        <input
-          type="text"
-          id="reverseCloseInput"
-          placeholder="Enter domain for reverse close"
-        />
-        <button id="addReverseCloseBtn">Add to Reverse Close List</button>
-        <div id="reverseCloseDomains"></div>
-      </div>
+      <button id="clear-data">Clear Data</button>
     </div>
-
+    <div id="closed-domains"></div>
+    <div class="controls">
+      <input type="text" id="domain-input" placeholder="Enter a URL" />
+      <button id="add-domain">Add</button>
+    </div>
+    <div class="domain-list" id="domains"></div>
     <script src="popup.js"></script>
   </body>
 </html>
