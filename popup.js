@@ -1,247 +1,205 @@
-// Helper function to extract only the domain name from a URL
-function getBaseDomain(url) {
-  try {
-    const parsedUrl = new URL(url);
-    return parsedUrl.hostname;
-  } catch (error) {
-    return url; // Return the original URL if parsing fails
-  }
-}
+const storage =
+  typeof browser !== "undefined" ? browser.storage.local : chrome.storage.local;
 
-// Display the closed tab data with grouped domains and counts
-function displayClosedTabData() {
-  chrome.storage.local.get(["closedTabCount", "closedTabUrls"], (result) => {
-    document.getElementById(
-      "closedTabCount"
-    ).textContent = `Total closed tabs: ${result.closedTabCount || 0}`;
-
-    const closedTabUrlsDiv = document.getElementById("closedTabUrls");
-
-    // Check if there are closed tabs to display
-    if (result.closedTabUrls && result.closedTabUrls.length > 0) {
-      closedTabUrlsDiv.style.display = "block"; // Show the div when there are items
-      closedTabUrlsDiv.innerHTML = ""; // Clear previous content
-
-      // Count occurrences of each domain
-      const domainCounts = {};
-      result.closedTabUrls.forEach((url) => {
-        const domain = getBaseDomain(url);
-        domainCounts[domain] = (domainCounts[domain] || 0) + 1;
-      });
-
-      // Display each domain with its count
-      Object.entries(domainCounts).forEach(([domain, count], index) => {
-        const urlElement = document.createElement("div");
-        urlElement.className = "tab-info";
-
-        const link = document.createElement("a");
-        link.href = `https://${domain}`;
-        link.target = "_blank";
-        link.textContent = `${index + 1}. ${domain}`;
-
-        // Add count display next to domain if more than once
-        const countText = document.createElement("span");
-        countText.style.marginLeft = "5px";
-        countText.style.fontWeight = "bold";
-        countText.textContent = count > 1 ? `x${count}` : "";
-
-        urlElement.appendChild(link);
-        urlElement.appendChild(countText);
-        closedTabUrlsDiv.appendChild(urlElement);
-      });
-    } else {
-      closedTabUrlsDiv.style.display = "none"; // Hide if no closed tabs
-    }
-  });
-}
-
-// Display the whitelist domains with a remove button and show/hide the list container based on content
-function displayWhitelist() {
-  chrome.storage.local.get("whitelistDomains", (result) => {
-    const whitelistDiv = document.getElementById("whitelistDomains");
-
-    // Check if there are domains in the whitelist
-    if (result.whitelistDomains && result.whitelistDomains.length > 0) {
-      whitelistDiv.style.display = "block"; // Show the div when there are items
-      whitelistDiv.innerHTML = ""; // Clear previous content
-
-      result.whitelistDomains.forEach((domain) => {
-        const domainElement = document.createElement("div");
-        domainElement.className = "whitelist-item";
-
-        const domainText = document.createElement("span");
-        domainText.textContent = domain;
-
-        const removeBtn = document.createElement("span");
-        removeBtn.className = "remove-btn";
-        removeBtn.textContent = "✖";
-        removeBtn.addEventListener("click", () =>
-          removeDomainFromWhitelist(domain)
-        );
-
-        domainElement.appendChild(domainText);
-        domainElement.appendChild(removeBtn);
-        whitelistDiv.appendChild(domainElement);
-      });
-    } else {
-      whitelistDiv.style.display = "none"; // Hide if list is empty
-    }
-  });
-}
-
-// Add domain to the whitelist
-function addDomainToWhitelist() {
-  const input = document.getElementById("whitelistInput");
-  const domain = input.value.trim();
-
-  if (domain) {
-    chrome.storage.local.get("whitelistDomains", (result) => {
-      const whitelist = result.whitelistDomains || [];
-      if (!whitelist.includes(domain)) {
-        whitelist.push(domain);
-        chrome.storage.local.set(
-          { whitelistDomains: whitelist },
-          displayWhitelist
-        );
-      }
-    });
-  }
-  input.value = "";
-}
-
-// Remove domain from the whitelist
-function removeDomainFromWhitelist(domain) {
-  chrome.storage.local.get("whitelistDomains", (result) => {
-    const whitelist = result.whitelistDomains || [];
-    const updatedWhitelist = whitelist.filter((item) => item !== domain);
-    chrome.storage.local.set(
-      { whitelistDomains: updatedWhitelist },
-      displayWhitelist
-    );
-  });
-}
-
-// Display the reverse close list with a remove button and show/hide the list container based on content
-function displayReverseCloseList() {
-  chrome.storage.local.get("reverseCloseDomains", (result) => {
-    const reverseCloseDiv = document.getElementById("reverseCloseDomains");
-
-    // Check if there are domains in the reverse close list
-    if (result.reverseCloseDomains && result.reverseCloseDomains.length > 0) {
-      reverseCloseDiv.style.display = "block"; // Show the div when there are items
-      reverseCloseDiv.innerHTML = ""; // Clear previous content
-
-      result.reverseCloseDomains.forEach((domain) => {
-        const domainElement = document.createElement("div");
-        domainElement.className = "reverse-close-item";
-
-        const domainText = document.createElement("span");
-        domainText.textContent = domain;
-
-        const removeBtn = document.createElement("span");
-        removeBtn.className = "remove-btn";
-        removeBtn.textContent = "✖";
-        removeBtn.addEventListener("click", () =>
-          removeDomainFromReverseClose(domain)
-        );
-
-        domainElement.appendChild(domainText);
-        domainElement.appendChild(removeBtn);
-        reverseCloseDiv.appendChild(domainElement);
-      });
-    } else {
-      reverseCloseDiv.style.display = "none"; // Hide if list is empty
-    }
-  });
-}
-
-// Add domain to the reverse close list
-function addDomainToReverseClose() {
-  const input = document.getElementById("reverseCloseInput");
-  const domain = input.value.trim();
-
-  if (domain) {
-    chrome.storage.local.get("reverseCloseDomains", (result) => {
-      const reverseCloseList = result.reverseCloseDomains || [];
-      if (!reverseCloseList.includes(domain)) {
-        reverseCloseList.push(domain);
-        chrome.storage.local.set(
-          { reverseCloseDomains: reverseCloseList },
-          displayReverseCloseList
-        );
-      }
-    });
-  }
-  input.value = "";
-}
-
-// Remove domain from the reverse close list
-function removeDomainFromReverseClose(domain) {
-  chrome.storage.local.get("reverseCloseDomains", (result) => {
-    const reverseCloseList = result.reverseCloseDomains || [];
-    const updatedList = reverseCloseList.filter((item) => item !== domain);
-    chrome.storage.local.set(
-      { reverseCloseDomains: updatedList },
-      displayReverseCloseList
-    );
-  });
-}
-
-// Clear all entries from closed tabs, whitelist, and reverse close lists
-function clearAllBlockedLists() {
-  chrome.storage.local.clear(() => {
-    displayClosedTabData(); // Refresh closed tab data
-    displayWhitelist(); // Refresh whitelist display
-    displayReverseCloseList(); // Refresh reverse close list display
-  });
-}
-
-// Save the state of the Reverse Close checkbox
-function saveReverseCloseState() {
-  const isChecked = document.getElementById("reverseCloseCheckbox").checked;
-  chrome.storage.local.set({ reverseCloseEnabled: isChecked });
-}
-
-// Restore the state of the Reverse Close checkbox on load
-function restoreReverseCloseState() {
-  chrome.storage.local.get("reverseCloseEnabled", (result) => {
-    const isChecked = result.reverseCloseEnabled || false;
-    document.getElementById("reverseCloseCheckbox").checked = isChecked;
-    toggleReverseCloseInput();
-  });
-}
-
-// Helper function to toggle the display of Reverse Close input fields
-function toggleReverseCloseInput() {
-  const isChecked = document.getElementById("reverseCloseCheckbox").checked;
-  document.getElementById("reverseCloseInput").style.display = isChecked
-    ? "block"
-    : "none";
-  document.getElementById("addReverseCloseBtn").style.display = isChecked
-    ? "block"
-    : "none";
-}
-
-// Initialize display and event listeners
 document.addEventListener("DOMContentLoaded", () => {
-  displayClosedTabData();
-  displayWhitelist();
-  displayReverseCloseList();
-  restoreReverseCloseState(); // Restore the checkbox state on load
+  const enableExtensionCheckbox = document.getElementById("enable-extension");
+  const enableTextSpan = document.getElementById("enable-text"); // Access the span that will change text
+  const domainInput = document.getElementById("domain-input");
+  const addDomainButton = document.getElementById("add-domain");
+  const domainsContainer = document.getElementById("domains");
+  const countInfo = document.getElementById("count-info");
+  const clearDataButton = document.getElementById("clear-data");
+  const closedDomainsContainer = document.getElementById("closed-domains"); // Container to show closed domain counts
 
-  document
-    .getElementById("addWhitelistBtn")
-    .addEventListener("click", addDomainToWhitelist);
-  document
-    .getElementById("addReverseCloseBtn")
-    .addEventListener("click", addDomainToReverseClose);
-  document
-    .getElementById("reverseCloseCheckbox")
-    .addEventListener("change", () => {
-      toggleReverseCloseInput();
-      saveReverseCloseState(); // Save the checkbox state when it changes
+  // Initially hide the domains container and closed domains container
+  domainsContainer.style.display = "none";
+  closedDomainsContainer.style.display = "none";
+
+  storage.get(
+    ["isEnabled", "domains", "closeCount", "closedDomains"],
+    (data) => {
+      enableExtensionCheckbox.checked = data.isEnabled || false;
+      const domains = data.domains || [];
+      const closeCount = data.closeCount || 0;
+      const closedDomains = data.closedDomains || {};
+
+      updateDomainList(domains);
+      updateClosedDomainsList(closedDomains);
+      countInfo.textContent = `Total Closed Tabs: ${closeCount}`;
+
+      // Update button text based on checkbox status
+      updateButtonText(enableExtensionCheckbox.checked);
+    },
+  );
+
+  enableExtensionCheckbox.addEventListener("change", () => {
+    storage.set({ isEnabled: enableExtensionCheckbox.checked });
+    updateButtonText(enableExtensionCheckbox.checked); // Update button text dynamically
+  });
+
+  // Function to update the button text based on whether the extension is enabled
+  function updateButtonText(isChecked) {
+    if (isChecked) {
+      enableTextSpan.textContent = "Disable"; // Text when checked
+    } else {
+      enableTextSpan.textContent = "Enable"; // Text when unchecked
+    }
+  }
+
+  // Make the span clickable as well (toggle checkbox when span clicked)
+  enableTextSpan.addEventListener("click", () => {
+    enableExtensionCheckbox.checked = !enableExtensionCheckbox.checked;
+    enableExtensionCheckbox.dispatchEvent(new Event("change")); // Trigger change event to update storage and button text
+  });
+
+  // Add domain button functionality
+  addDomainButton.addEventListener("click", () => {
+    const newDomain = extractDomain(domainInput.value.trim());
+    if (!newDomain) return;
+
+    storage.get("domains", (data) => {
+      const domains = data.domains || [];
+      if (!domains.includes(newDomain)) {
+        domains.push(newDomain);
+        storage.set({ domains });
+        updateDomainList(domains);
+      }
     });
-  document
-    .getElementById("clearAllBtn")
-    .addEventListener("click", clearAllBlockedLists);
+
+    domainInput.value = "";
+  });
+
+  // Add event listener for "Enter" key to add domain
+  domainInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      // Check if the pressed key is Enter
+      addDomainButton.click(); // Trigger the "click" event of the "Add" button
+    }
+  });
+
+  // Function to extract only the domain part from a full URL
+  function extractDomain(url) {
+    try {
+      const parsedUrl = new URL(url);
+      return parsedUrl.hostname; // Return only the hostname (e.g., www.example.com)
+    } catch (e) {
+      console.error("Invalid URL", e);
+      return ""; // If URL is invalid, return empty string
+    }
+  }
+
+  clearDataButton.addEventListener("click", () => {
+    storage.set({ domains: [], closeCount: 0, closedDomains: {} }, () => {
+      updateDomainList([]);
+      updateClosedDomainsList({});
+      countInfo.textContent = `Closed Tabs Count: 0`;
+    });
+  });
+
+  function updateDomainList(domains) {
+    // Show the domains container only if there are domains
+    if (domains.length > 0) {
+      domainsContainer.style.display = "block";
+    } else {
+      domainsContainer.style.display = "none";
+    }
+
+    domainsContainer.innerHTML = "";
+    domains.forEach((domain) => {
+      const domainItem = document.createElement("div");
+      domainItem.style.display = "flex";
+      domainItem.style.alignItems = "center";
+      domainItem.style.width = "100%";
+
+      domainItem.className = "domain-item";
+      const domainName = document.createElement("span");
+      domainName.textContent = domain;
+      domainItem.appendChild(domainName);
+
+      const removeButton = document.createElement("button");
+      removeButton.style.marginRight = "10px";
+      removeButton.textContent = "x"; // Change text to X
+      removeButton.style.color = "red"; // White text
+      removeButton.style.cursor = "pointer"; // Pointer cursor on hover
+      removeButton.style.fontSize = "20px"; // Pointer cursor on hover
+      removeButton.style.background = "transparent"; // Pointer cursor on hover
+      removeButton.style.padding = "0"; // Pointer cursor on hover
+
+      removeButton.onclick = () => {
+        storage.get("domains", (data) => {
+          const updatedDomains = data.domains.filter((d) => d !== domain);
+          storage.set({ domains: updatedDomains });
+          updateDomainList(updatedDomains);
+        });
+      };
+
+      domainItem.appendChild(removeButton);
+      domainsContainer.appendChild(domainItem);
+    });
+  }
+
+  function updateClosedDomainsList(closedDomains) {
+    // Show the closed domains container only if there are closed domains
+    if (Object.keys(closedDomains).length > 0) {
+      closedDomainsContainer.style.display = "block";
+    } else {
+      closedDomainsContainer.style.display = "none";
+    }
+
+    closedDomainsContainer.innerHTML = "";
+
+    for (let domain in closedDomains) {
+      const domainItem = document.createElement("div");
+      domainItem.className = "domain-item";
+
+      // Create a container for the domain name and the count
+      const domainTextContainer = document.createElement("div");
+      domainTextContainer.style.display = "flex";
+      domainTextContainer.style.alignItems = "center";
+      domainTextContainer.style.width = "100%";
+
+      // Create the domain name element
+      const domainName = document.createElement("span");
+      domainName.textContent = domain;
+      domainTextContainer.appendChild(domainName);
+
+      // Create the "x" count element
+      const countText = document.createElement("span");
+      countText.textContent = `x${closedDomains[domain]}`;
+      countText.style.color = "green";
+      countText.style.fontSize = "12px";
+      countText.style.fontWeight = "bold";
+      countText.style.paddingLeft = "10px";
+      domainTextContainer.appendChild(countText);
+
+      // Append the domain text container to the domain item
+      domainItem.appendChild(domainTextContainer);
+
+      // Create the remove button
+      const removeButton = document.createElement("button");
+      removeButton.style.marginRight = "10px";
+      removeButton.textContent = "x"; // Button text
+      removeButton.style.color = "red"; // Button text color
+      removeButton.style.cursor = "pointer"; // Pointer cursor on hover
+      removeButton.style.fontSize = "20px"; // Font size for button
+      removeButton.style.background = "transparent"; // Transparent background
+      removeButton.style.padding = "0"; // No padding for button
+
+      // Remove the domain from the storage when the button is clicked
+      removeButton.onclick = () => {
+        storage.get("closedDomains", (data) => {
+          const updatedClosedDomains = { ...data.closedDomains };
+          delete updatedClosedDomains[domain];
+          storage.set({ closedDomains: updatedClosedDomains });
+          updateClosedDomainsList(updatedClosedDomains);
+        });
+      };
+
+      // Append the remove button to the domain item
+      domainItem.appendChild(removeButton);
+
+      // Append the domain item to the container
+      closedDomainsContainer.appendChild(domainItem);
+    }
+  }
 });
