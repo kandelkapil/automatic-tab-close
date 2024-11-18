@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Update button text based on checkbox status
       updateButtonText(enableExtensionCheckbox.checked);
-    },
+    }
   );
 
   enableExtensionCheckbox.addEventListener("change", () => {
@@ -72,8 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Add event listener for "Enter" key to add domain
   domainInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
-      // Check if the pressed key is Enter
-      addDomainButton.click(); // Trigger the "click" event of the "Add" button
+      addDomainButton.click();
     }
   });
 
@@ -81,10 +80,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function extractDomain(url) {
     try {
       const parsedUrl = new URL(url);
-      return parsedUrl.hostname; // Return only the hostname (e.g., www.example.com)
+      return parsedUrl?.hostname;
     } catch (e) {
-      console.error("Invalid URL", e);
-      return ""; // If URL is invalid, return empty string
+      return url;
     }
   }
 
