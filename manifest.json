@@ -1,13 +1,13 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "name": "Automatic Tab Closer",
   "version": "1.0",
   "description": "Close specific domain tabs automatically.",
   "permissions": ["tabs", "storage","webNavigation"],
   "background": {
-    "service_worker": "background.js"
+    "scripts": ["background.js"]
   },
-  "action": {
+  "browser_action": {
     "default_popup": "popup.html"
   },
   "icons": {
